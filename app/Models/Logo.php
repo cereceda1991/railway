@@ -22,4 +22,8 @@ class Logo extends Model
         'publicId'=>'string',
         'status' => 'boolean'
     ];
+
+    protected $hidden = [
+        'publicId',
+    ];
 }

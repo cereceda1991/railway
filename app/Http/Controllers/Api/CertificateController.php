@@ -15,6 +15,7 @@ use MongoDB\BSON\ObjectID;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CertificateEmail;
 use App\Jobs\SendCertificateEmail;
+use Illuminate\Support\Collection;
 use App\Mail\QueueEmail;
 use Illuminate\Support\Facades\Bus;
 
@@ -58,11 +59,14 @@ class CertificateController extends Controller
         try {
             $encryptedId = Auth::user()->getAuthIdentifier();
             $authorityId = $request->authorities;
-        
+    
             $certificateData = CertificateData::create([
                 'id_user' => $encryptedId,
+                'certificateTitle' => $request->certificateTitle,
                 'certificateContent' => $request->certificateContent,
                 'career_type' => $request->career_type,
+                'institution' => $request->institution, 
+                'emission_date' => $request->emission_date,
             ]);
     
             $certificateData->authorities()->sync($authorityId);
@@ -82,7 +86,7 @@ class CertificateController extends Controller
         } catch (\Throwable $th) {
             return response()->error($th->getMessage());
         }
-    }   
+    }  
 
     public function update(Request $request, $id)
     {
@@ -131,32 +135,38 @@ class CertificateController extends Controller
         try {
             $certificate = Certificate::findOrFail($id);
             $student = Student::findOrFail($certificate->id_student);
-            
+    
+            $emailAddress = $student->email;
+    
             dispatch(new SendCertificateEmail(
                 $certificate->id,
-                $student->email
+                $emailAddress
             )); 
-            
-            return response()->success('', 'Certificado enviado');
+    
+            return response()->success(['email' => $emailAddress], 'Certificate sent');
         } catch (\Throwable $th) {
             return response()->error($th->getMessage());
         }
-    }
+    }    
     
     public function sendAll($id_cd)
     {
-        try{
-        $certificates = Certificate::where('id_cd', new ObjectID($id_cd))->get();
-
-        foreach ($certificates as $certificate) {
-            dispatch(new SendCertificateEmail(
-                $certificate->public_key,
-                $certificate->student->email
-            ))->delay(20); 
-        }
-        
-        return response()->success('', 'Certificate sended');
-        }catch (\Throwable $th){
+        try {
+            $certificates = Certificate::where('id_cd', new ObjectID($id_cd))->get();
+            $sentEmails = new Collection();
+    
+            foreach ($certificates as $certificate) {
+                dispatch(new SendCertificateEmail(
+                    $certificate->_id,
+                    $certificate->student->email
+                ))->delay(20);
+    
+                // Agregar el correo electrónico a la colección de correos enviados
+                $sentEmails->push($certificate->student->email);
+            }
+            
+            return response()->success(['emails' => $sentEmails], 'Certificates sent');
+        } catch (\Throwable $th) {
             return response()->error($th->getMessage());
         }
     }

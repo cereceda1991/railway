@@ -16,18 +16,24 @@ class Authority extends Model
         'urlImg',
         'publicId',
         'position',
-        'autorityName',
+        'authorityName',
         'id_user',
         'id_cd',
+        'status', 
     ];
 
     protected $casts = [
         'urlImg' => 'string',
         'publicId' => 'string',
         'position' => 'string',
-        'autorityName' => 'string',
+        'authorityName' => 'string',
         'id_user' => 'string',
         'id_cd' => 'string',
+        'status' => 'boolean', 
+    ];
+
+    protected $hidden = [
+        'publicId',
     ];
 
     public function certificateData()

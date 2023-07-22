@@ -14,24 +14,10 @@ class AuthorityController extends Controller
 {
     public function index()
     {
-        $perPage = 50; 
         $encryptedId = Auth::user()->getAuthIdentifier();
-        $authorities = Authority::where('id_user', $encryptedId)
-            ->paginate($perPage);
+        $authorities = Authority::where('id_user', $encryptedId)->get();
     
-        $response = [
-            'status' => 'success',
-            'message' => 'Authorities found!',
-            'data' => [
-                'authorities' => $authorities->items(),
-                'currentPage' => $authorities->currentPage(),
-                'perPage' => $authorities->perPage(),
-                'totalPages' => $authorities->lastPage(),
-                'totalCount' => $authorities->total(),
-            ],
-        ];
-    
-        return response()->json($response, Response::HTTP_OK);
+        return response()->success($authorities, 'Authorities found!');
     }
     
     public function show($id)
@@ -53,7 +39,7 @@ class AuthorityController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'image' => 'image',
-            'autorityName' => 'required|string|min:1', 
+            'authorityName' => 'required|string|min:1', 
             'position' => 'required|string|min:1',
         ]);
     
@@ -83,8 +69,9 @@ class AuthorityController extends Controller
     
         $encryptedId = Auth::user()->getAuthIdentifier();
         $signatureData = [
-            'autorityName' => $request->autorityName,
+            'authorityName' => $request->authorityName,
             'position' => $request->position,
+            'status' => true,
             'id_user' => $encryptedId,
         ];
     
@@ -92,8 +79,8 @@ class AuthorityController extends Controller
     
         try {
             $authority = Authority::create($signatureData);
-    
-            return response()->json(['message' => 'The Authority has been added successfully!', 'authority' => $authority], Response::HTTP_CREATED);
+
+            return response()->success($authority, 'The Authority has been added successfully!');
     
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -104,7 +91,7 @@ class AuthorityController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'image' => 'image',
-            'autorityName' => 'required|string|min:1', 
+            'authorityName' => 'required|string|min:1', 
             'position' => 'required|string|min:1',
         ]);
     
@@ -128,12 +115,12 @@ class AuthorityController extends Controller
                 $authority->update([
                     'urlImg' => $image->getSecurePath(),
                     'publicId' => $image->getPublicId(),
-                    'autorityName' => $request->autorityName,
+                    'authorityName' => $request->authorityName,
                     'position' => $request->position,
                 ]);
             } else {
                 $authority->update([
-                    'autorityName' => $request->autorityName,
+                    'authorityName' => $request->authorityName,
                     'position' => $request->position,
                 ]);
             }

@@ -13,15 +13,25 @@ class CertificateData extends Model
     protected $collection = 'certificates_data';
 
     protected $fillable = [
-        'career_type',
+        'institution',
+        'emission_date',
+        'certificateTitle',
         'certificateContent',
+        'career_type',
         'id_user',
     ];
 
     protected $casts = [
-        'career_type' => 'string',
+        'institution' => 'string',
+        'emission_date' => 'string',
+        'certificateTitle' => 'string',
         'certificateContent' => 'string',
+        'career_type' => 'string',
         'id_user' => 'string',
+    ];
+
+    protected $hidden = [
+        'authority_id',
     ];
 
     public function authorities()

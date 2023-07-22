@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Logo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 use Symfony\Component\HttpFoundation\Response;
 use Cloudinary;
@@ -14,24 +15,12 @@ class LogoController extends Controller
 {
     public function index()
     {
-        $perPage = 50; // Número de logos por página
-        $logos = Logo::paginate($perPage);
+        $encryptedId = Auth::user()->getAuthIdentifier();
     
-        $response = [
-            'status' => 'success',
-            'message' => 'Logos found!',
-            'data' => [
-                'logos' => $logos->items(),
-                'currentPage' => $logos->currentPage(),
-                'perPage' => $logos->perPage(),
-                'totalPages' => $logos->lastPage(),
-                'totalCount' => $logos->total(),
-            ],
-        ];
+        $logos = Logo::where('id_user', $encryptedId)->get();    
     
-        return response()->json($response, Response::HTTP_OK);
+    return response()->success($logos, 'Logos found!');
     }
-    
 
     public function show($id)
     {
@@ -54,6 +43,7 @@ class LogoController extends Controller
             return response()->json([$validator->errors()], Response::HTTP_BAD_REQUEST);
         }
     
+        $encryptedId = Auth::user()->getAuthIdentifier();
         $uploadedFile = $request->file('image');
         try {
             $image = Cloudinary::upload($uploadedFile->getRealPath());
@@ -61,15 +51,16 @@ class LogoController extends Controller
             $logo->urlImg = $image->getSecurePath();
             $logo->publicId = $image->getPublicId();
             $logo->status = true;
+            $logo->id_user = $encryptedId;
             $logo->save();
     
-         
-            return response()->success([$logo ], 'The logo has been added successfully!');
-
+            return response()->success([$logo], 'The logo has been added successfully!');
+    
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    
 
     public function update(Request $request,$id)
     {
