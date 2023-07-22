@@ -2,24 +2,23 @@
 
 namespace App\Models;
 
-namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Jenssegers\Mongodb\Eloquent\Model;
 
-class Signature extends Model
+class Authority extends Model
 {
     use HasFactory;
 
     protected $connection = 'mongodb';
-    protected $collection = 'signatures';
+    protected $collection = 'authorities';
 
     protected $fillable = [
         'urlImg',
         'publicId',
         'position',
         'autorityName',
-        'id_user'
+        'id_user',
+        'id_cd',
     ];
 
     protected $casts = [
@@ -27,8 +26,14 @@ class Signature extends Model
         'publicId' => 'string',
         'position' => 'string',
         'autorityName' => 'string',
-        'id_user' => 'string'
+        'id_user' => 'string',
+        'id_cd' => 'string',
     ];
 
+    public function certificateData()
+    {
+        return $this->belongsTo(CertificateData::class, 'id_cd', '_id');
+    }
 }
+
 

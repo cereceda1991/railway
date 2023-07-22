@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\SignatureController;
+use App\Http\Controllers\Api\AuthorityController;
 use App\Http\Controllers\Api\LogoController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\StudentController;
@@ -41,7 +41,7 @@ Route::group(['prefix' => 'v1'], function () {
         // Rutas para logos        
         Route::resource('logos', LogoController::class)->except(['edit','create','destroy']);
         // Rutas para Firmas        
-        Route::resource('signatures', SignatureController::class)->except(['edit','create','destroy']);
+        Route::resource('authorities', AuthorityController::class)->except(['edit','create','destroy']);
         // Rutas para estudiantes        
         Route::resource('students', StudentController::class)->except(['create','edit']);
         // Ruta para enviar token para restaurar la contraseña

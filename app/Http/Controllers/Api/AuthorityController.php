@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Signature;
+use App\Models\Authority;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
@@ -10,24 +10,24 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Cloudinary;
 
-class SignatureController extends Controller
+class AuthorityController extends Controller
 {
     public function index()
     {
         $perPage = 50; 
         $encryptedId = Auth::user()->getAuthIdentifier();
-        $signatures = Signature::where('id_user', $encryptedId)
+        $authorities = Authority::where('id_user', $encryptedId)
             ->paginate($perPage);
     
         $response = [
             'status' => 'success',
-            'message' => 'Signatures found!',
+            'message' => 'Authorities found!',
             'data' => [
-                'signatures' => $signatures->items(),
-                'currentPage' => $signatures->currentPage(),
-                'perPage' => $signatures->perPage(),
-                'totalPages' => $signatures->lastPage(),
-                'totalCount' => $signatures->total(),
+                'authorities' => $authorities->items(),
+                'currentPage' => $authorities->currentPage(),
+                'perPage' => $authorities->perPage(),
+                'totalPages' => $authorities->lastPage(),
+                'totalCount' => $authorities->total(),
             ],
         ];
     
@@ -38,13 +38,13 @@ class SignatureController extends Controller
     {
         try {
             $encryptedId = Auth::user()->getAuthIdentifier();
-            $signature = Signature::where('id_user', $encryptedId)
+            $authority = Authority::where('id_user', $encryptedId)
                 ->findOrFail($id);
     
-            return response()->success($signature, 'Signature found!');
+            return response()->success($authority, 'Authority found!');
     
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'Signature not found'], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => 'Authority not found'], Response::HTTP_NOT_FOUND);
         }
     }
     
@@ -91,9 +91,9 @@ class SignatureController extends Controller
         $signatureData = array_merge($signatureData, $imageData);
     
         try {
-            $signature = Signature::create($signatureData);
+            $authority = Authority::create($signatureData);
     
-            return response()->json(['message' => 'The Signature has been added successfully!', 'signature' => $signature], Response::HTTP_CREATED);
+            return response()->json(['message' => 'The Authority has been added successfully!', 'authority' => $authority], Response::HTTP_CREATED);
     
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -114,31 +114,31 @@ class SignatureController extends Controller
     
         try {
             $encryptedId = Auth::user()->getAuthIdentifier();
-            $signature = Signature::where('id_user', $encryptedId)
+            $authority = Authority::where('id_user', $encryptedId)
                 ->findOrFail($id);
     
             if ($request->hasFile('image')) {
                 $uploadedFile = $request->file('image');
                 $image = Cloudinary::upload($uploadedFile->getRealPath());
     
-                if ($signature->publicId) {
-                    Cloudinary::destroy($signature->publicId);
+                if ($authority->publicId) {
+                    Cloudinary::destroy($authority->publicId);
                 }
     
-                $signature->update([
+                $authority->update([
                     'urlImg' => $image->getSecurePath(),
                     'publicId' => $image->getPublicId(),
                     'autorityName' => $request->autorityName,
                     'position' => $request->position,
                 ]);
             } else {
-                $signature->update([
+                $authority->update([
                     'autorityName' => $request->autorityName,
                     'position' => $request->position,
                 ]);
             }
     
-            return response()->success($signature, 'Data updated!');
+            return response()->success($authority, 'Data updated!');
         } catch (\Throwable $th) {
             return response()->error($th->getMessage());
         } 
