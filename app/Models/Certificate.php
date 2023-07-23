@@ -15,7 +15,6 @@ class Certificate extends Model
     protected $fillable = [
         'id_cd',
         'id_template',
-        'id_logo',
         'id_student',
         'public_key'
     ];
@@ -23,7 +22,6 @@ class Certificate extends Model
     protected $casts = [
         'id_cd'  => 'string',
         'id_template'  => 'string',
-        'id_logo'  => 'string',
         'id_student'  => 'string',
         'public_key' => 'string'
     ];
@@ -38,10 +36,6 @@ class Certificate extends Model
     return $this->belongsTo(CertificateData::class, 'id_cd', '_id');
     }
 
-    public function logo()
-    {
-        return $this->belongsTo(Logo::class, 'id_logo');
-    }
     public function template()
     {
         return $this->belongsTo(Template::class, 'id_template');
@@ -50,7 +44,6 @@ class Certificate extends Model
     protected $hidden = [
         'id_student',
         'id_cd',
-        'id_logo',
         'id_template'
     ];
 
@@ -61,9 +54,7 @@ class Certificate extends Model
         if ($this->relationLoaded('student')) {
             $array['student'] = $this->student;
         }
-        if ($this->relationLoaded('logo')) {
-            $array['logo'] = $this->logo;
-        }
+        
         if ($this->relationLoaded('template')) {
             $array['template'] = $this->template;
         }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Certificate;
 use App\Models\CertificateData;
 use App\Models\Authority;
+use App\Models\Logo;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,7 @@ class CertificateController extends Controller
     public function index()
     {
         $encryptedId = Auth::user()->getAuthIdentifier();
-        $certificates = CertificateData::with('authorities')
+        $certificates = CertificateData::with('authorities','logos')
             ->where('id_user', $encryptedId)
             ->get();
     
@@ -38,7 +39,7 @@ class CertificateController extends Controller
                 return response()->error('Error, the request format is not as expected.');
             }
     
-            $certificate = Certificate::with('certificateData.authorities', 'student', 'template', 'logo')
+            $certificate = Certificate::with('certificateData.authorities', 'student', 'template', 'certificateData.logos')
                 ->where('_id', new ObjectID($parameter))
                 ->first();
     
@@ -59,6 +60,7 @@ class CertificateController extends Controller
         try {
             $encryptedId = Auth::user()->getAuthIdentifier();
             $authorityId = $request->authorities;
+            $logoIds = $request->logos;
     
             $certificateData = CertificateData::create([
                 'id_user' => $encryptedId,
@@ -71,29 +73,38 @@ class CertificateController extends Controller
     
             $certificateData->authorities()->sync($authorityId);
     
+            // Asociar los logos al certificado
+            $logos = Logo::whereIn('_id', $logoIds)->get();
+            $certificateData->logos()->saveMany($logos);
+    
             $studentsData = $request->input('students');
             foreach ($studentsData as $studentData) {
                 $student = Student::create($studentData);
                 $certificate = Certificate::create([
                     'id_cd' => new ObjectID($certificateData->_id),
                     'id_template' => $request->id_template,
-                    'id_logo' => $request->id_logo,
                     'public_key' => new ObjectID(),
                     'id_student' => $student->_id
                 ]);
             }
-            return response()->success($certificateData, 'Data saved!');
+    
+            // Cargar las autoridades y los logos en el modelo CertificateData antes de devolver la respuesta
+            $certificateData->load('authorities', 'logos');
+    
+            // Devolver la respuesta con los datos del certificado
+            return response()->success([
+                'certificateData' => $certificateData,
+            ], 'Data saved!');
         } catch (\Throwable $th) {
             return response()->error($th->getMessage());
         }
-    }  
+    }
 
     public function update(Request $request, $id)
     {
         $certificate = Certificate::findOrFail($id);
 
         $certificate->id_template = $request->id_template;
-        $certificate->id_logo = $request->id_logo;
         $certificate->id_student = $request->id_student;
         $certificate->id_cd = $request->id_cd;
 

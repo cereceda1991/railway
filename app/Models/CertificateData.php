@@ -38,4 +38,9 @@ class CertificateData extends Model
     {
         return $this->belongsToMany(Authority::class, null, 'certificate_id', 'authority_id');
     }
+
+    public function logos()
+    {
+        return $this->hasMany(Logo::class, 'cd_id');
+    }
 }
