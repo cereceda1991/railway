@@ -12,7 +12,7 @@
                 <p style="font-size: 24px; color: #545454; font-family: Montserrat, Arial, sans-serif;">
                     <b>¡Certificado obtenido con éxito! 💪</b>
                 </p>
-                <p style="font-size: 18px; color: #FBD59B; font-family: Montserrat, Arial, sans-serif;">
+                <p style="font-size: 18px; color: #FA897B; font-family: Montserrat, Arial, sans-serif;">
                     <b>¡Felicidades {{ $studentName }}!</b>
                 </p>
                 <p style="font-size: 18px; color: #545454; font-family: Montserrat, Arial, sans-serif; width: 540px;">Has desbloqueado un logro excepcional al completar con éxito el curso. Tu compromiso con el aprendizaje y el desarrollo personal te ha llevado a la cima, y no podríamos estar más orgullosos de ti. Mantén esa chispa de aprendizaje siempre encendida y continúa tu camino hacia el éxito.
