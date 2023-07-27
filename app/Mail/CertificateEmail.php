@@ -12,15 +12,17 @@ class CertificateEmail extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public $url;
+    public $studentName; 
 
-    public function __construct($publicKey)
+    public function __construct($publicKey, $studentName)
     {
         $this->url = $_ENV['APP_URL_FRONTEND_CERTIFICATE'] . $publicKey;
+        $this->studentName = $studentName; 
     }
 
     public function build()
     {
-        return $this->subject('Certificate Ready')
+        return $this->subject('Certificado Emitido ¡Felicidades!')
                     ->view('emails.certificate');
     }
 }

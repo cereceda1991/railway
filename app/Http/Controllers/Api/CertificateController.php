@@ -151,14 +151,16 @@ class CertificateController extends Controller
     
             dispatch(new SendCertificateEmail(
                 $certificate->id,
-                $emailAddress
+                $emailAddress,
+                $student->name 
             )); 
     
             return response()->success(['email' => $emailAddress], 'Certificate sent');
         } catch (\Throwable $th) {
             return response()->error($th->getMessage());
         }
-    }    
+    }
+      
     
     public function sendAll($id_cd)
     {
@@ -169,7 +171,8 @@ class CertificateController extends Controller
             foreach ($certificates as $certificate) {
                 dispatch(new SendCertificateEmail(
                     $certificate->_id,
-                    $certificate->student->email
+                    $certificate->student->email,
+                    $certificate->student->name // Pasamos el nombre del estudiante como tercer argumento
                 ))->delay(20);
     
                 // Agregar el correo electrónico a la colección de correos enviados
@@ -181,4 +184,5 @@ class CertificateController extends Controller
             return response()->error($th->getMessage());
         }
     }
+    
 }

@@ -15,16 +15,21 @@ class SendCertificateEmail implements ShouldQueue
 
     protected $publicKey;
     protected $email;
+    protected $studentName; 
+
     /**
      * Create a new job instance.
      *
      * @param  string  $publicKey
+     * @param  string  $email
+     * @param  string  $studentName
      * @return void
      */
-    public function __construct($publicKey,$email)
+    public function __construct($publicKey, $email, $studentName)
     {
         $this->publicKey = $publicKey;
         $this->email = $email;
+        $this->studentName = $studentName; 
     }
 
     /**
@@ -34,7 +39,7 @@ class SendCertificateEmail implements ShouldQueue
      */
     public function handle()
     {
-        $mail = new CertificateEmail($this->publicKey);
+        $mail = new CertificateEmail($this->publicKey, $this->studentName); 
         Mail::to($this->email)->send($mail);
     }
 }
