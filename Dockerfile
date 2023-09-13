@@ -1,5 +1,5 @@
 # Usar la imagen base de PHP 8.1
-FROM php:8.1
+FROM php:8.1.17
 
 # Establecer el directorio de trabajo en /var/www
 WORKDIR /var/www
@@ -19,8 +19,8 @@ RUN docker-php-ext-install pdo_mysql mbstring zip
 # Instalar extensión de OpenSSL para PHP
 RUN apt-get install -y openssl
 
-# Instalar extensión de MongoDB para PHP
-RUN pecl install mongodb && \
+# Instalar extensión de MongoDB para PHP (versión específica 1.13.0)
+RUN pecl install mongodb-1.13.0 && \
     docker-php-ext-enable mongodb
 
 # Instalar Composer
@@ -28,9 +28,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 # Copiar los archivos de la aplicación al contenedor
 COPY . .
-
-# Copiar el archivo .env.example como .env
-RUN cp .env.example .env
 
 # Generar la clave de la aplicación
 RUN php artisan key:generate || true
